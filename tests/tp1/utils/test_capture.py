@@ -76,33 +76,38 @@ def test_given_capture_when_capture_traffic_then_interface_is_set():
     capture = Capture()
 
     # When
-    capture.capture_traffic()
+    with patch("src.tp1.utils.capture.sniff") as mock_sniff:
+        mock_sniff.return_value = [tcp_normal1, arp_normal1]
+        capture.capture_traffic()
 
     # Then
-    # This is a minimal test since the method doesn't do much yet
+    mock_sniff.assert_called_once_with(iface="eth0", timeout=30)
     assert capture.interface == "eth0"
+    assert capture.packets == [tcp_normal1, arp_normal1]
 
 
 def test_sort_network_protocols():
     # Given
     capture = Capture()
+    capture.packets = [tcp_normal1, arp_normal1, arp_normal2]
 
     # When
     result = capture.sort_network_protocols()
 
     # Then
-    assert result == ""  # Method currently returns None
+    assert list(result.items()) == [("Ether", 3), ("ARP", 2), ("IP", 1), ("TCP", 1)]
 
 
 def test_get_all_protocols():
     # Given
     capture = Capture()
+    capture.packets = [tcp_normal1, arp_normal1, arp_normal2]
 
     # When
     result = capture.get_all_protocols()
 
     # Then
-    assert result == ""  # Method currently returns None
+    assert result == {"Ether": 3, "IP": 1, "TCP": 1, "ARP": 2}
 
 
 @pytest.mark.parametrize(
