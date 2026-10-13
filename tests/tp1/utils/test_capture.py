@@ -214,6 +214,35 @@ def test_detect_port_scan(packets, theoricalAlerts):
     assert capture.alerts == theoricalAlerts
 
 
+@pytest.mark.parametrize(
+    "packets, theoricalAlerts",
+    [
+        ([raw_packet_withoutflag], []),  # cas 1 : paquet normal == aucune alerte
+        (
+            [raw_flag_packet],
+            [
+                Alert(
+                    AttackType.SQL_INJECTION,
+                    "TCP",
+                    SCANNER_IP,
+                    raw_flag_packet[Ether].src,
+                    f"SQL injection attempt from {SCANNER_IP}",
+                )
+            ],
+        ),
+    ],
+    ids=["sql_normal", "sql_alert"],
+)
+def test_detect_sql_injection(packets, theoricalAlerts):
+    # Given
+    capture = Capture()
+    # When
+    capture.packets = packets
+    capture.detect_sql_injection()
+    # Then
+    assert capture.alerts == theoricalAlerts
+
+
 def test_get_summary():
     # Given
     capture = Capture()

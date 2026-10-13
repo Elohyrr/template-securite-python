@@ -1,10 +1,12 @@
 from dataclasses import dataclass
+from urllib.parse import unquote
 
-from scapy.all import ARP, IP, TCP, rdpcap, sniff
+from scapy.all import ARP, IP, TCP, Ether, Raw, rdpcap, sniff
 
 from tp1.utils.config import logger
 
 THRESHOLD = 10
+SQL_PATTERNS = ["or 1=1", "union select", " or 1=1"]
 
 
 class AttackType:
@@ -144,6 +146,22 @@ class Capture:
         Detect SQL injection
         """
         logger.info("Detect SQL injection")
+        pkts = self.packets
+        for pkt in pkts:
+            if pkt.haslayer(Raw):
+                texte = unquote(pkt[Raw].load.decode(errors="ignore")).lower()
+                for motif in SQL_PATTERNS:
+                    if motif in texte:
+                        self.alerts.append(
+                            Alert(
+                                attack_type=AttackType.SQL_INJECTION,
+                                protocol="TCP",
+                                src_ip=pkt[IP].src,
+                                src_mac=pkt[Ether].src,
+                                details=f"SQL injection attempt from {pkt[IP].src}",
+                            )
+                        )
+                    break
 
     def detect_port_scan(self) -> None:
         """
