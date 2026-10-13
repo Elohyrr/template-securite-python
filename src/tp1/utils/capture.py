@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from scapy.all import ARP, IP, TCP, rdpcap
+from scapy.all import ARP, IP, TCP
 
 from tp1.utils.config import logger
 
@@ -68,7 +68,6 @@ class Capture:
         # logger.debug(f"All protocols: {all_protocols}")
         # logger.debug(f"Sorted protocols: {sort}")
 
-        self.packets = rdpcap("file.pcap")
         logger.info(f"Captured {len(self.packets)} packets")
 
         self.detect_arp_spoofing()

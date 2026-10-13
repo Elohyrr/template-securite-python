@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 import pytest
 from scapy.all import ARP, IP, TCP, Ether
 
@@ -160,9 +158,8 @@ def test_detect_arp_spoofing(packets, theoricalAlerts):
     capture = Capture()
 
     # When
-    with patch("src.tp1.utils.capture.rdpcap", return_value=packets):
-        capture.packets = packets
-        capture.detect_arp_spoofing()
+    capture.packets = packets
+    capture.detect_arp_spoofing()
     assert capture.alerts == theoricalAlerts
 
 
@@ -203,9 +200,8 @@ def test_detect_port_scan(packets, theoricalAlerts):
     capture = Capture()
 
     # When
-    with patch("src.tp1.utils.capture.rdpcap", return_value=packets):
-        capture.packets = packets
-        capture.detect_port_scan()
+    capture.packets = packets
+    capture.detect_port_scan()
     assert capture.alerts == theoricalAlerts
 
 
@@ -273,7 +269,6 @@ def test_find_flag(packets, theoricalFlag):
     capture = Capture()
 
     # When
-    with patch("src.tp1.utils.capture.rdpcap", return_value=packets):
-        capture.packets = packets
-        capture.find_flag()
+    capture.packets = packets
+    capture.find_flag()
     assert capture.flag == theoricalFlag
