@@ -86,9 +86,7 @@ class Capture:
         # logger.debug(f"All protocols: {all_protocols}")
         # logger.debug(f"Sorted protocols: {sort}")
 
-        self.packets = rdpcap("file.pcap")
         logger.info(f"Captured {len(self.packets)} packets")
-        logger.info(f"Captured packets: {self.packets.show()}")
 
         self.detect_arp_spoofing()
         self.detect_sql_injection()
@@ -102,7 +100,7 @@ class Capture:
         Return summary
         :return:
         """
-        logger.info(self.summary)
+        return self.summary
 
     def _gen_summary(self) -> str:
         """
@@ -110,8 +108,12 @@ class Capture:
         """
         if not self.alerts:
             return "No alerts detected."
-        else:
-            return self.alerts
+
+        alerts_length = len(self.alerts)
+        lines = [f"{alerts_length} alert(s) detected:"]
+        for alert in self.alerts:
+            lines.append(f"{alert.attack_type} : {alert.details}")
+        return "\n".join(lines)
 
     def detect_arp_spoofing(self) -> None:
         """
@@ -204,6 +206,8 @@ class Capture:
         for pkt in pkts:
             # if pkt.haslayer(TCP) and pkt[TCP].payload and b"GET /login" in bytes(pkt[TCP].payload):
             if pkt.haslayer(TCP) and pkt[TCP].payload:
-                pkt.show()  # need to import regex instead of just 'get /login' and parse this packet b"GET /login.php?user=admin%27%20OR%201=1--%20&token=ESGI{tp1_47e333cd2508} HTTP/1.1\r\nHost: intranet\r\nUser-Agent: sqlmap/1.7\r\nX-Note: injection ' OR 1=1\r\n\r\n" like an idiot
-                # regex on ESGI{tp1_47e333cd2508} to find the flag
+                return
+                # debug pkt.show()
+                # # need to import regex instead of just 'get /login' and parse this packet b"GET /login.php?user=admin%27%20OR%201=1--%20&token=ESGI{tp1_47e333cd2508} HTTP/1.1\r\nHost: intranet\r\nUser-Agent: sqlmap/1.7\r\nX-Note: injection ' OR 1=1\r\n\r\n" like an idiot
+                # regex on ESGI{tp1_47e333cd2508} to find the flag but be careful of fake flags !
                 # wwill the flag be in other packet than raw ? dont think so but gonna test it

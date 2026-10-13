@@ -7,14 +7,12 @@ from tp1.utils.config import logger
 def main():
     logger.info("Starting TP1")
 
-    # scapy_cap = rdpcap("file.pcap")
-    # print(scapy_cap.summary())
-
     capture = Capture()
     capture.capture_traffic()
     capture.analyse("tcp")
 
-    capture.get_summary()
+    summary = capture.get_summary()
+    logger.info(summary)
 
     # filename = "report.pdf"
     # report = Report(capture, filename, summary)
