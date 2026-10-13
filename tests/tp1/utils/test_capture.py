@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from scapy.all import ARP, IP, TCP, Ether
 
