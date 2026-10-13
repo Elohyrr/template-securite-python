@@ -14,7 +14,8 @@ def main():
     capture.capture_traffic()
     capture.analyse("tcp")
 
-    capture.get_summary()
+    summary = capture.get_summary()
+    logger.info(summary)
 
     # filename = "report.pdf"
     # report = Report(capture, filename, summary)

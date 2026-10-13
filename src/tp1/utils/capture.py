@@ -84,7 +84,7 @@ class Capture:
         Return summary
         :return:
         """
-        logger.info(self.summary)
+        return self.summary
 
     def _gen_summary(self) -> str:
         """
@@ -92,8 +92,12 @@ class Capture:
         """
         if not self.alerts:
             return "No alerts detected."
-        else:
-            return self.alerts
+
+        alerts_length = len(self.alerts)
+        lines = [f"{alerts_length} alert(s) detected:"]
+        for alert in self.alerts:
+            lines.append(f"{alert.attack_type} : {alert.details}")
+        return "\n".join(lines)
 
     def detect_arp_spoofing(self) -> None:
         """

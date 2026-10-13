@@ -221,7 +221,7 @@ def test_get_summary():
     assert result == "Test summary"
 
 
-def test_gen_summary():
+def test_gen_summary_no_alert():
     # Given
     capture = Capture()
 
@@ -229,7 +229,30 @@ def test_gen_summary():
     result = capture._gen_summary()
 
     # Then
-    assert result == ""  # Method currently returns empty string
+    assert result == "No alerts detected."
+
+
+def test_gen_summary_with_alerts():
+    # Given
+    capture = Capture()
+    capture.alerts = [
+        Alert(
+            attack_type=AttackType.ARP_SPOOFING,
+            protocol="ARP",
+            src_ip=CLIENT_IP,
+            src_mac=SCANNER_MAC,
+            details=f"IP {CLIENT_IP} is being spoofed by MAC {SCANNER_MAC}",
+        )
+    ]
+
+    # When
+    result = capture._gen_summary()
+
+    # Then
+    assert result == (
+        "1 alert(s) detected:\n"
+        f"{AttackType.ARP_SPOOFING} : IP {CLIENT_IP} is being spoofed by MAC {SCANNER_MAC}"
+    )
 
 
 @pytest.mark.parametrize(
