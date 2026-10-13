@@ -1,10 +1,12 @@
 from dataclasses import dataclass
+from urllib.parse import unquote
 
-from scapy.all import ARP, IP, TCP
+from scapy.all import ARP, IP, TCP, Ether, Raw, rdpcap, sniff
 
 from tp1.utils.config import logger
 
 THRESHOLD = 10
+SQL_PATTERNS = ["or 1=1", "union select", " or 1=1"]
 
 
 class AttackType:
@@ -32,24 +34,40 @@ class Capture:
         self.summary = ""
         self.flag = ""
 
-    def capture_traffic(self) -> None:
+    def capture_traffic(self, pcap_file: str = "") -> None:
         """
         Capture network traffic from an interface
+        (or read it from a pcap file if one is given)
         """
         interface = self.interface
         logger.info(f"Capture traffic from interface {interface}")
 
-    def sort_network_protocols(self) -> str:
+        if pcap_file:
+            self.packets = rdpcap(pcap_file)
+        else:
+            self.packets = sniff(iface=interface, timeout=30)
+
+        logger.info(f"{len(self.packets)} packets captured")
+
+    def sort_network_protocols(self) -> dict:
         """
         Sort and return all captured network protocols
         """
-        return ""
+        protocols = self.get_all_protocols()
+        return dict(sorted(protocols.items(), key=lambda p: p[1], reverse=True))
 
-    def get_all_protocols(self) -> str:
+    def get_all_protocols(self) -> dict:
         """
         Return all protocols captured with total packets number
         """
-        return ""
+        protocols = {}
+        for pkt in self.packets:
+            for layer in pkt.layers():
+                name = layer.__name__
+                if name in ("Raw", "Padding"):
+                    continue
+                protocols[name] = protocols.get(name, 0) + 1
+        return protocols
 
     def analyse(self, protocols: str) -> None:
         """
@@ -130,6 +148,22 @@ class Capture:
         Detect SQL injection
         """
         logger.info("Detect SQL injection")
+        pkts = self.packets
+        for pkt in pkts:
+            if pkt.haslayer(Raw):
+                texte = unquote(pkt[Raw].load.decode(errors="ignore")).lower()
+                for motif in SQL_PATTERNS:
+                    if motif in texte:
+                        self.alerts.append(
+                            Alert(
+                                attack_type=AttackType.SQL_INJECTION,
+                                protocol="TCP",
+                                src_ip=pkt[IP].src,
+                                src_mac=pkt[Ether].src,
+                                details=f"SQL injection attempt from {pkt[IP].src}",
+                            )
+                        )
+                    break
 
     def detect_port_scan(self) -> None:
         """
