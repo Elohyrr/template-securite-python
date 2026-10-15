@@ -4,7 +4,7 @@ from urllib.parse import unquote
 from scapy.all import ARP, IP, TCP, Ether, Raw, rdpcap, sniff
 
 from tp1.utils.config import logger
-from tp1.utils.lib import choose_interface, parse_args
+from tp1.utils.lib import choose_interface
 
 THRESHOLD = 10
 SQL_PATTERNS = ["or 1=1", "union select", " or 1=1"]
@@ -34,20 +34,18 @@ class Capture:
         self.summary = ""
         self.flag = ""
 
-    def capture_traffic(self) -> None:
+    def capture_traffic(self, pcap, iface) -> None:
         """
         Capture network traffic from an interface
         (or read it from a pcap file if one is given)
         """
-        args = parse_args()
-        logger.info(args)
 
-        if args.pcap:
-            pcap_file = args.pcap
+        if pcap:
+            pcap_file = pcap
             logger.info(f"Capture traffic from pcap file {pcap_file}")
             self.packets = rdpcap(pcap_file)
-        elif args.iface:
-            self.interface = args.iface
+        elif iface:
+            self.interface = iface
             logger.info(f"Capture traffic from interface {self.interface}")
             self.packets = sniff(iface=self.interface, timeout=30)
         else:
