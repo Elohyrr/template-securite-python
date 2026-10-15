@@ -12,9 +12,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="ProgramName", description="What the program does", epilog="Text at the bottom of help"
     )
-    parser.add_mutually_exclusive_group()
-    parser.add_argument("--pcap", type=str, help="Path to the pcap file")
-    parser.add_argument("--iface", type=str, help="Network interface to capture traffic from")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--pcap", type=str, help="Path to the pcap file")
+    group.add_argument("--iface", type=str, help="Network interface to capture traffic from")
 
     parser.add_argument(
         "--out", type=str, default="report.json", help="Output file name (default: report.json)"
