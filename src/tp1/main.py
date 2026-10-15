@@ -2,13 +2,17 @@
 
 from tp1.utils.capture import Capture
 from tp1.utils.config import logger
+from tp1.utils.lib import parse_args
 
 
 def main():
     logger.info("Starting TP1")
 
+    args = parse_args()
+    logger.info(args)
+
     capture = Capture()
-    capture.capture_traffic()
+    capture.capture_traffic(args.pcap, args.iface)
     capture.analyse("tcp")
 
     summary = capture.get_summary()
