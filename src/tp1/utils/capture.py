@@ -46,7 +46,7 @@ class Capture:
             pcap_file = args.pcap
             logger.info(f"Capture traffic from pcap file {pcap_file}")
             self.packets = rdpcap(pcap_file)
-        if args.iface:
+        elif args.iface:
             self.interface = args.iface
             logger.info(f"Capture traffic from interface {self.interface}")
             self.packets = sniff(iface=self.interface, timeout=30)
