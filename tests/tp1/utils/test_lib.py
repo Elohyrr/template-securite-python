@@ -1,3 +1,5 @@
+import argparse
+
 import pytest
 
 from src.tp1.utils.lib import choose_interface, parse_args
@@ -25,7 +27,7 @@ def test_parse_args(args, theoricalArgs):
     result = parse_args(args)
 
     # Then
-    assert result == theoricalArgs
+    assert result == argparse.Namespace(**theoricalArgs)
 
 
 def test_when_choose_interface_then_return_empty_string():

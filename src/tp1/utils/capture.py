@@ -4,6 +4,7 @@ from urllib.parse import unquote
 from scapy.all import ARP, IP, TCP, Ether, Raw, rdpcap, sniff
 
 from tp1.utils.config import logger
+from tp1.utils.lib import choose_interface, parse_args
 
 THRESHOLD = 10
 SQL_PATTERNS = ["or 1=1", "union select", " or 1=1"]
@@ -26,26 +27,33 @@ class Alert:
 
 class Capture:
     def __init__(self) -> None:
-        # self.interface = choose_interface()
-        self.interface = "eth0"
+        self.interface = ""
         self.summary = ""
         self.packets = []
         self.alerts: list[Alert] = []
         self.summary = ""
         self.flag = ""
 
-    def capture_traffic(self, pcap_file: str = "") -> None:
+    def capture_traffic(self) -> None:
         """
         Capture network traffic from an interface
         (or read it from a pcap file if one is given)
         """
-        interface = self.interface
-        logger.info(f"Capture traffic from interface {interface}")
+        args = parse_args()
+        logger.info(args)
 
-        if pcap_file:
+        if args.pcap:
+            pcap_file = args.pcap
+            logger.info(f"Capture traffic from pcap file {pcap_file}")
             self.packets = rdpcap(pcap_file)
+        if args.iface:
+            self.interface = args.iface
+            logger.info(f"Capture traffic from interface {self.interface}")
+            self.packets = sniff(iface=self.interface, timeout=30)
         else:
-            self.packets = sniff(iface=interface, timeout=30)
+            self.interface = choose_interface()
+            logger.info(f"Capture traffic from interface {self.interface}")
+            self.packets = sniff(iface=self.interface, timeout=30)
 
         logger.info(f"{len(self.packets)} packets captured")
 
