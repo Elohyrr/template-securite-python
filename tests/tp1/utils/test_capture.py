@@ -78,7 +78,7 @@ def test_given_capture_when_capture_traffic_then_interface_is_set():
     # When
     with patch("src.tp1.utils.capture.sniff") as mock_sniff:
         mock_sniff.return_value = [tcp_normal1, arp_normal1]
-        capture.capture_traffic()
+        capture.capture_traffic(iface="eth0", pcap=None)
 
     # Then
     mock_sniff.assert_called_once_with(iface="eth0", timeout=30)
