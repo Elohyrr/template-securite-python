@@ -10,7 +10,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     :return: "hello world"
     """
     parser = argparse.ArgumentParser(
-        prog="ProgramName", description="What the program does", epilog="Text at the bottom of help"
+        prog="tp1",
+        description="Take interface or pcap file in input and analyse it to detect arp spoofing, port scan or sql injection.",
+        epilog="This command generate a report in json and graph",
     )
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--pcap", type=str, help="Path to the pcap file")
