@@ -1,5 +1,4 @@
 import pygal
-from cairosvg import svg2png
 from fpdf import FPDF
 from pygal.style import DefaultStyle
 
@@ -10,7 +9,7 @@ class Report:
     def __init__(self, capture: Capture, filename: str, summary: str):
         self.capture = capture
         self.filename = filename
-        self.title = "Report Network Traffic Analysis"
+        self.title = "TITRE DU RAPPORT"
         self.summary = summary
         self.array = ""
         self.graph = ""
@@ -25,6 +24,7 @@ class Report:
         content += self.summary
         content += self.array
         content += self.graph
+
         return content
 
     def save(self, filename: str) -> None:
@@ -64,9 +64,7 @@ class Report:
         sorted_protocol = self.capture.sort_network_protocols()
 
         if param == "graph":
-            graph = pygal.Bar(
-                title="Number of Packets per Network Protocol", show_legend=False, print_values=True
-            )
+            graph = pygal.Bar(title="Nombre de paquets par protocole", show_legend=False, print_values=True)
             graph.x_labels = list(sorted_protocol.keys())
             couleurs = DefaultStyle.colors
             graph.add(
@@ -77,9 +75,7 @@ class Report:
                 ],
             )
             graph.render_to_file("graph.svg")
-            # convert svg to png
-            svg2png(url="graph.svg", write_to="graph.png")
-            self.graph = "\n![Graphique](graph.png)\n"
+            self.graph = "\n![Graphique](graph.svg)\n"
 
         elif param == "array":
             array = "┌──────────┬───────────┐\n"
