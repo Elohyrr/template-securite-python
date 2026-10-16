@@ -27,10 +27,28 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def choose_interface() -> str:
     """
-    Return network interface and input user choice
+    Display available network interfaces and let user choose one.
 
-    :return: network interface
+    :return: selected network interface name
     """
-    int_list = get_if_list()
-    interface = input(f"Choose an interface from the list {int_list}: ")
-    return interface
+    interfaces = get_if_list()
+
+    if not interfaces:
+        print("No network interfaces")
+        return ""
+
+    print("\nAvailable network interfaces : ")
+    for i, interface in enumerate(interfaces, 1):
+        print(f"{i}. {interface}")
+
+    while True:
+        try:
+            choice = input("Select an interface (number) : ").strip()
+            choice_num = int(choice)
+
+            if 1 <= choice_num <= len(interfaces):
+                return interfaces[choice_num - 1]
+            else:
+                print(f"Invalid choice : enter a number between 1 and {len(interfaces)}")
+        except ValueError:
+            print("Invalid input : enter a valid number")
