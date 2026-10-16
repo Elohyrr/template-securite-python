@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from urllib.parse import unquote
 
@@ -6,7 +7,7 @@ from scapy.all import ARP, IP, TCP, Ether, Raw, rdpcap, sniff
 from tp1.utils.config import logger
 
 THRESHOLD = 10
-SQL_PATTERNS = ["or 1=1", "union select", " or 1=1"]
+SQL_PATTERN = ["or 1=1", "union select", " or 1=1"]
 
 
 class AttackType:
@@ -152,7 +153,7 @@ class Capture:
         for pkt in pkts:
             if pkt.haslayer(Raw):
                 texte = unquote(pkt[Raw].load.decode(errors="ignore")).lower()
-                for motif in SQL_PATTERNS:
+                for motif in SQL_PATTERN:
                     if motif in texte:
                         self.alerts.append(
                             Alert(
@@ -163,7 +164,7 @@ class Capture:
                                 details=f"SQL injection attempt from {pkt[IP].src}",
                             )
                         )
-                    break
+                        break
 
     def detect_port_scan(self) -> None:
         """
@@ -206,8 +207,21 @@ class Capture:
         for pkt in pkts:
             # if pkt.haslayer(TCP) and pkt[TCP].payload and b"GET /login" in bytes(pkt[TCP].payload):
             if pkt.haslayer(TCP) and pkt[TCP].payload:
-                return
-                # debug pkt.show()
-                # # need to import regex instead of just 'get /login' and parse this packet b"GET /login.php?user=admin%27%20OR%201=1--%20&token=ESGI{tp1_47e333cd2508} HTTP/1.1\r\nHost: intranet\r\nUser-Agent: sqlmap/1.7\r\nX-Note: injection ' OR 1=1\r\n\r\n" like an idiot
-                # regex on ESGI{tp1_47e333cd2508} to find the flag but be careful of fake flags !
-                # wwill the flag be in other packet than raw ? dont think so but gonna test it
+                if not pkt.haslayer(Raw):
+                    continue
+
+                texte = unquote(pkt[Raw].load.decode(errors="ignore"))
+
+                resultat = re.search(r"token=(ESGI\{[^}]+\})", texte)
+
+                if resultat:
+                    self.flag = resultat.group(1)
+                    logger.info(f"Flag found: {self.flag}")
+                    return
+                else:
+                    self.flag = None
+        logger.info("No flag")
+        # debug pkt.show()
+        # # need to import regex instead of just 'get /login' and parse this packet b"GET /login.php?user=admin%27%20OR%201=1--%20&token=ESGI{tp1_47e333cd2508} HTTP/1.1\r\nHost: intranet\r\nUser-Agent: sqlmap/1.7\r\nX-Note: injection ' OR 1=1\r\n\r\n" like an idiot
+        # regex on ESGI{tp1_47e333cd2508} to find the flag but be careful of fake flags !
+        # wwill the flag be in other packet than raw ? dont think so but gonna test it
