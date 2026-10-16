@@ -1,4 +1,5 @@
 import pygal
+from cairosvg import svg2png
 from fpdf import FPDF
 from pygal.style import DefaultStyle
 
@@ -75,7 +76,9 @@ class Report:
                 ],
             )
             graph.render_to_file("graph.svg")
-            self.graph = "\n![Graphique](graph.svg)\n"
+            # convert svg to png
+            svg2png(url="graph.svg", write_to="graph.png")
+            self.graph = "\n![Graphique](graph.png)\n"
 
         elif param == "array":
             array = "┌──────────┬───────────┐\n"
