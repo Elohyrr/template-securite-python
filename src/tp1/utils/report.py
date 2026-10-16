@@ -37,11 +37,16 @@ class Report:
         """
         Generate graph and array
         """
+        sorted_protocol = self.capture.sort_network_protocols()
         if param == "graph":
             # TODO: generate graph
             graph = ""
             self.graph = graph
         elif param == "array":
-            # TODO: generate array
-            array = ""
+            array = "┌──────────┬───────────┐\n"
+            array += "│ Protocol │ Nb paquet │\n"
+            array += "├──────────┼───────────┤\n"
+            for nom, nombre in sorted_protocol.items():
+                array += f"│   {nom:<6} │    {nombre:<6} │\n"
+            array += "└──────────┴───────────┘"
             self.array = array
