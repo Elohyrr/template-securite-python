@@ -2,6 +2,8 @@ import argparse
 
 from scapy.all import get_if_list
 
+from tp1.utils.config import logger
+
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """
@@ -34,12 +36,12 @@ def choose_interface() -> str:
     interfaces = get_if_list()
 
     if not interfaces:
-        print("No network interfaces")
+        logger.error("No network interfaces")
         return ""
 
-    print("\nAvailable network interfaces : ")
+    logger.info("Available network interfaces :")
     for i, interface in enumerate(interfaces, 1):
-        print(f"{i}. {interface}")
+        logger.info(f"{i}. {interface}")
 
     while True:
         try:
@@ -49,6 +51,6 @@ def choose_interface() -> str:
             if 1 <= choice_num <= len(interfaces):
                 return interfaces[choice_num - 1]
             else:
-                print(f"Invalid choice : enter a number between 1 and {len(interfaces)}")
+                logger.warning(f"Invalid choice : enter a number between 1 and {len(interfaces)}")
         except ValueError:
-            print("Invalid input : enter a valid number")
+            logger.warning("Invalid input : enter a valid number")
