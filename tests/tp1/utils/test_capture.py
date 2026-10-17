@@ -261,7 +261,7 @@ def test_gen_summary_no_alert():
     result = capture._gen_summary()
 
     # Then
-    assert result == "No alerts detected."
+    assert result == "No alerts detected"
 
 
 def test_gen_summary_with_alerts():
@@ -282,8 +282,9 @@ def test_gen_summary_with_alerts():
 
     # Then
     assert result == (
-        "1 alert(s) detected:\n"
-        f"{AttackType.ARP_SPOOFING} : IP {CLIENT_IP} is being spoofed by MAC {SCANNER_MAC}"
+        "1 alert(s) detected :\n"
+        f"{AttackType.ARP_SPOOFING} (ARP) : IP {CLIENT_IP} is being spoofed by MAC {SCANNER_MAC} "
+        f"[IP : {CLIENT_IP} | MAC : {SCANNER_MAC}]"
     )
 
 

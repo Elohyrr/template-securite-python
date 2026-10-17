@@ -114,12 +114,14 @@ class Capture:
         Generate summary
         """
         if not self.alerts:
-            return "No alerts detected."
+            return "No alerts detected"
 
         alerts_length = len(self.alerts)
-        lines = [f"{alerts_length} alert(s) detected:"]
+        lines = [f"{alerts_length} alert(s) detected :"]
         for alert in self.alerts:
-            lines.append(f"{alert.attack_type} : {alert.details}")
+            lines.append(
+                f"{alert.attack_type} ({alert.protocol}) : {alert.details} [IP : {alert.src_ip} | MAC : {alert.src_mac}]"
+            )
         return "\n".join(lines)
 
     def detect_arp_spoofing(self) -> None:
