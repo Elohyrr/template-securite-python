@@ -26,7 +26,7 @@ python-magic = "^0.4.27"
 pytesseract = "^0.3.13"
 pillow = "^12.0"
 pwntools = "^4.13.1"
-cairosvg = "^2.9.1"
+matplotlib = "^3.11.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"

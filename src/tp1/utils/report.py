@@ -1,11 +1,11 @@
 import json
 
-import pygal
-from cairosvg import svg2png
 from fpdf import FPDF
-from pygal.style import DefaultStyle
+from matplotlib.figure import Figure
 
 from tp1.utils.capture import AttackType, Capture
+
+COLORS = ["#F44336", "#3F51B5", "#009688", "#FFC107", "#FF5722", "#9C27B0", "#03A9F4"]
 
 
 class Report:
@@ -92,20 +92,18 @@ class Report:
         sorted_protocol = self.capture.sort_network_protocols()
 
         if param == "graph":
-            style = DefaultStyle(title_font_size=25, label_font_size=15, major_label_font_size=15)
-            graph = pygal.Bar(title="Number of Packets per Network Protocol", show_legend=False, style=style)
-            graph.x_labels = list(sorted_protocol.keys())
-            couleurs = DefaultStyle.colors
-            graph.add(
-                "",
-                [
-                    {"value": nombre, "color": couleurs[i % len(couleurs)]}
-                    for i, nombre in enumerate(sorted_protocol.values())
-                ],
+            figure = Figure(figsize=(8, 6))
+            ax = figure.subplots()
+            ax.bar(
+                list(sorted_protocol.keys()),
+                list(sorted_protocol.values()),
+                color=[COLORS[i % len(COLORS)] for i in range(len(sorted_protocol))],
             )
-            graph.render_to_file("graph.svg")
-            # convert svg to png
-            svg2png(url="graph.svg", write_to="graph.png")
+            ax.set_title("Number of Packets per Network Protocol", fontsize=18)
+            ax.tick_params(labelsize=14)
+            ax.grid(axis="y", linestyle="--")
+            ax.set_axisbelow(True)
+            figure.savefig("graph.png", dpi=100)
             self.graph = "\n![Graphique](graph.png)\n"
 
         elif param == "array":
