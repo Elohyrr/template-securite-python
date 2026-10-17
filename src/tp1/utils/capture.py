@@ -9,6 +9,7 @@ from tp1.utils.lib import choose_interface
 
 THRESHOLD = 10
 SQL_PATTERN = ["or 1=1", "union select", " or 1=1"]
+HTTP_PATTERN = ("GET", "POST", "PUT", "HEAD", "DELETE", "HTTP/")
 
 
 class AttackType:
@@ -73,6 +74,13 @@ class Capture:
                 name = layer.__name__
                 if name in ("Raw", "Padding"):
                     continue
+                if name == "Ether":
+                    protocols["Ethernet"] = protocols.get("Ethernet", 0) + 1
+                    continue
+                if name == "TCP" and pkt.haslayer(Raw):
+                    texte = unquote(pkt[Raw].load.decode(errors="ignore"))
+                    if texte.startswith(HTTP_PATTERN):
+                        protocols["HTTP"] = protocols.get("HTTP", 0) + 1
                 protocols[name] = protocols.get(name, 0) + 1
         return protocols
 
