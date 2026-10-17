@@ -5,7 +5,7 @@ from matplotlib.figure import Figure
 
 from tp1.utils.capture import AttackType, Capture
 
-COLORS = ["#F44336", "#3F51B5", "#009688", "#FFC107", "#FF5722", "#9C27B0", "#03A9F4"]
+COLORS = ["#EA6361", "#6A78C5", "#39AEA3", "#FFCF3B", "#FF7D54", "#B257C2", "#3CBCF6"]
 
 
 class Report:
