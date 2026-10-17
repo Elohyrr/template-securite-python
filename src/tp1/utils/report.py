@@ -1,3 +1,5 @@
+import json
+
 import pygal
 from cairosvg import svg2png
 from fpdf import FPDF
@@ -57,6 +59,26 @@ class Report:
         pdf.image("graph.png", x="C", w=170)
 
         pdf.output(filename)
+
+    def generate_json(self, out_json: str) -> None:
+        """
+        Generate the machine-readable report (protocols, attacks, flag)
+        :param out_json:
+        :return:
+        """
+        data = {
+            "protocols": self.capture.sort_network_protocols(),
+            "attacks": [
+                {
+                    "type": alert.attack_type.lower().replace(" ", "_"),
+                    "attacker": alert.src_mac,
+                }
+                for alert in self.capture.alerts
+            ],
+            "flag": self.capture.flag or "",
+        }
+        with open(out_json, "w", encoding="utf-8") as report:
+            json.dump(data, report, indent=4, ensure_ascii=False)
 
     def generate(self, param: str) -> None:
         """
