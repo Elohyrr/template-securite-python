@@ -14,15 +14,20 @@ from src.tp1.utils.lib import choose_interface, parse_args
             {"pcap": "filetest.pcap", "iface": None, "out": "report.json"},
         ),
         (
-            ["--pcap", "filetest.pcap", "--iface", "eth0", "--out", "reporttest.json"],
-            {"pcap": "filetest.pcap", "iface": "eth0", "out": "reporttest.json"},
+            ["--pcap", "filetest.pcap", "--out", "reporttest.json"],
+            {"pcap": "filetest.pcap", "iface": None, "out": "reporttest.json"},
+        ),
+        (
+            ["--iface", "eth0", "--out", "reporttest.json"],
+            {"pcap": None, "iface": "eth0", "out": "reporttest.json"},
         ),
     ],
     ids=[
         "without_args",
         "with_pcap_arg",
-        "with_all_args",
-    ],  # with_all_args is failing cuz i fixed mutually exclusive flags, nedd to fix test
+        "with_pcap_and_out_args",
+        "with_iface_and_out_args",
+    ],
 )
 def test_parse_args(args, theoricalArgs):
     # Given
@@ -32,6 +37,16 @@ def test_parse_args(args, theoricalArgs):
 
     # Then
     assert result == argparse.Namespace(**theoricalArgs)
+
+
+def test_parse_args_with_pcap_and_iface_then_exit():
+    # Given
+
+    # When
+
+    # Then
+    with pytest.raises(SystemExit):
+        parse_args(["--pcap", "filetest.pcap", "--iface", "eth0"])
 
 
 def test_when_choose_interface_then_return_empty_string():
