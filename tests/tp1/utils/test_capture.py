@@ -291,12 +291,12 @@ def test_gen_summary_with_alerts():
 @pytest.mark.parametrize(
     "packets, theoricalFlag",
     [
-        ([raw_packet_withoutflag], "no flag found"),  # should return no flag
-        ([raw_flag_packet], "ESGI\{tp1_47e333cd2508\}"),  # should return flag
-        ([raw_packet_withoutflag, *raw_packets_with_fake_flag], "no flag found"),  # should return no flag
+        ([raw_packet_withoutflag], None),  # should return no flag
+        ([raw_flag_packet], "ESGI{tp1_47e333cd2508}"),  # should return flag
+        ([raw_packet_withoutflag, *raw_packets_with_fake_flag], None),  # should return no flag
         (
             [raw_packet_withoutflag, *raw_packets_with_fake_flag, raw_flag_packet],
-            "tp1_47e333cd2508",
+            "ESGI{tp1_47e333cd2508}",
         ),  # should return only real flag
     ],
     ids=["no_flag", "flag", "fake_flags", "fake_flags_with_real_flag"],
