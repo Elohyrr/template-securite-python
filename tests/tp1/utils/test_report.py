@@ -20,20 +20,6 @@ def test_report_init():
     assert report.graph == ""
 
 
-def test_concat_report():
-    # Given
-    report = Report(MagicMock(), "test.pdf", "Test summary")
-    report.title = "Test Title"
-    report.array = "Test Array"
-    report.graph = "Test Graph"
-
-    # When
-    result = report.concat_report()
-
-    # Then
-    assert result == "Test TitleTest summaryTest ArrayTest Graph"
-
-
 def test_save():
     # Given
     report = Report(MagicMock(), "test.pdf", "Test summary")

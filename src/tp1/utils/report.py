@@ -14,21 +14,8 @@ class Report:
         self.filename = filename
         self.title = "Report Network Traffic Analysis"
         self.summary = summary
-        self.array = ""
+        self.array = []
         self.graph = ""
-
-    def concat_report(self) -> str:
-        """
-        Concatenate report content
-        :return:
-        """
-        content = ""
-        content += self.title
-        content += self.summary
-        content += self.array
-        content += self.graph
-
-        return content
 
     def save(self, filename: str) -> None:
         """
@@ -36,6 +23,10 @@ class Report:
         :param filename:
         :return:
         """
+        if not self.array:
+            self.generate("array")
+        if not self.graph:
+            self.generate("graph")
 
         pdf = FPDF()
         pdf.add_page()
@@ -46,17 +37,29 @@ class Report:
         pdf.ln(20)
 
         # summary
-        pdf.set_font("helvetica", "B", 14)
+        pdf.set_font("helvetica", "B", 11)
         pdf.cell(0, 15, "Summary")
         pdf.ln(15)
 
-        pdf.set_font("helvetica", "", 12)
+        pdf.set_font("helvetica", "", 11)
         pdf.set_x(15)  # decale le summary
-        pdf.multi_cell(w=180, h=8, text=self.summary)
+        pdf.multi_cell(w=0, h=6, text=self.summary)
         pdf.ln(10)
 
+        # protocols table
+        pdf.set_font("helvetica", "", 10)
+        with pdf.table(width=140, text_align="CENTER") as table:
+            for ligne in self.array:
+                row = table.row()
+                for valeur in ligne:
+                    row.cell(valeur)
+
+        pdf.ln(5)
+        pdf.ln(5)
+
         # graph
-        pdf.image("graph.png", x="C", w=170)
+        pdf.image("graph.png", x="C", w=150)
+        pdf.ln(5)
 
         pdf.output(filename)
 
@@ -105,10 +108,6 @@ class Report:
             self.graph = "\n![Graphique](graph.png)\n"
 
         elif param == "array":
-            array = "┌──────────┬───────────┐\n"
-            array += "│ Protocol │ Nb paquet │\n"
-            array += "├──────────┼───────────┤\n"
+            self.array = [("Protocol", "Nb paquets")]
             for nom, nombre in sorted_protocol.items():
-                array += f"│   {nom:<6} │    {nombre:<6} │\n"
-            array += "└──────────┴───────────┘"
-            self.array = array
+                self.array.append((nom, str(nombre)))
