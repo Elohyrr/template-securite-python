@@ -182,7 +182,7 @@ def test_detect_arp_spoofing(packets, theoricalAlerts):
                     attack_type=AttackType.PORT_SCAN,
                     protocol="TCP",
                     src_ip=SCANNER_IP,
-                    src_mac="",
+                    src_mac=SCANNER_MAC,
                     details=f"IP {SCANNER_IP} is scanning ports on IP {TARGET_IP}",
                 )
             ],
@@ -194,7 +194,7 @@ def test_detect_arp_spoofing(packets, theoricalAlerts):
                     attack_type=AttackType.PORT_SCAN,
                     protocol="TCP",
                     src_ip=SCANNER_IP,
-                    src_mac="",
+                    src_mac=SCANNER_MAC,
                     details=f"IP {SCANNER_IP} is scanning ports on IP {TARGET_IP}",
                 ),
             ],

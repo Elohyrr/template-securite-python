@@ -200,7 +200,7 @@ class Capture:
                             attack_type=AttackType.PORT_SCAN,
                             protocol="TCP",
                             src_ip=pkt[IP].src,
-                            src_mac="",
+                            src_mac=pkt[Ether].src,
                             details=f"IP {pkt[IP].src} is scanning ports on IP {pkt[IP].dst}",
                         )
                     )
