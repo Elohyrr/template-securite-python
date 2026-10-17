@@ -1,8 +1,9 @@
-# from scapy.all import *
+from pathlib import Path
 
 from tp1.utils.capture import Capture
 from tp1.utils.config import logger
 from tp1.utils.lib import parse_args
+from tp1.utils.report import Report
 
 
 def main():
@@ -18,11 +19,14 @@ def main():
     summary = capture.get_summary()
     logger.info(summary)
 
-    # filename = "report.pdf"
-    # report = Report(capture, filename, summary)
-    # report.generate("graph")
-    # report.generate("array")
-    # report.save(filename)
+    json_file = args.out
+    pdf_file = str(Path(args.out).with_suffix(".pdf"))
+    report = Report(capture, pdf_file, summary)
+    report.generate("graph")
+    report.generate("array")
+    report.save(pdf_file)
+    report.generate_json(json_file)
+    logger.info(f"Report saved to {pdf_file} and {json_file}")
 
 
 if __name__ == "__main__":
