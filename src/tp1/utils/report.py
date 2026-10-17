@@ -90,9 +90,8 @@ class Report:
         sorted_protocol = self.capture.sort_network_protocols()
 
         if param == "graph":
-            graph = pygal.Bar(
-                title="Number of Packets per Network Protocol", show_legend=False, print_values=True
-            )
+            style = DefaultStyle(title_font_size=25, label_font_size=15, major_label_font_size=15)
+            graph = pygal.Bar(title="Number of Packets per Network Protocol", show_legend=False, style=style)
             graph.x_labels = list(sorted_protocol.keys())
             couleurs = DefaultStyle.colors
             graph.add(
