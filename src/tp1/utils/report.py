@@ -5,7 +5,7 @@ from cairosvg import svg2png
 from fpdf import FPDF
 from pygal.style import DefaultStyle
 
-from tp1.utils.capture import Capture
+from tp1.utils.capture import AttackType, Capture
 
 
 class Report:
@@ -74,7 +74,9 @@ class Report:
             "attacks": [
                 {
                     "type": alert.attack_type.lower().replace(" ", "_"),
-                    "attacker": alert.src_mac,
+                    "attacker": alert.src_mac
+                    if alert.attack_type == AttackType.ARP_SPOOFING
+                    else alert.src_ip,
                 }
                 for alert in self.capture.alerts
             ],
