@@ -54,8 +54,7 @@ class Report:
                 for valeur in ligne:
                     row.cell(valeur)
 
-        pdf.ln(5)
-        pdf.ln(5)
+        pdf.ln(10)
 
         # graph
         pdf.image("graph.png", x="C", w=150)
