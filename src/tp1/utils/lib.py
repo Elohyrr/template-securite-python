@@ -7,9 +7,10 @@ from tp1.utils.config import logger
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """
-    Hello world function
+    Parse the command line arguments (--pcap or --iface, and --out)
 
-    :return: "hello world"
+    :param argv: arguments to parse, sys.argv is used if None
+    :return: parsed arguments
     """
     parser = argparse.ArgumentParser(
         prog="tp1",
