@@ -13,7 +13,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(
         prog="tp1",
-        description="Take interface or pcap file in input and analyse it to detect arp spoofing, port scan or sql injection.",
+        description=(
+            "Take interface or pcap file in input and analyse it "
+            "to detect arp spoofing, port scan or sql injection."
+        ),
         epilog="This command generate a report in json and graph",
     )
     group = parser.add_mutually_exclusive_group()

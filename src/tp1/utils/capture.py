@@ -128,7 +128,8 @@ class Capture:
         lines = [f"{alerts_length} alert(s) detected :"]
         for alert in self.alerts:
             lines.append(
-                f"{alert.attack_type} ({alert.protocol}) : {alert.details} [IP : {alert.src_ip} | MAC : {alert.src_mac}]"
+                f"{alert.attack_type} ({alert.protocol}) : {alert.details} "
+                f"[IP : {alert.src_ip} | MAC : {alert.src_mac}]"
             )
         return "\n".join(lines)
 
@@ -241,7 +242,3 @@ class Capture:
                 else:
                     self.flag = None
         logger.info("No flag")
-        # debug pkt.show()
-        # # need to import regex instead of just 'get /login' and parse this packet b"GET /login.php?user=admin%27%20OR%201=1--%20&token=ESGI{tp1_47e333cd2508} HTTP/1.1\r\nHost: intranet\r\nUser-Agent: sqlmap/1.7\r\nX-Note: injection ' OR 1=1\r\n\r\n" like an idiot
-        # regex on ESGI{tp1_47e333cd2508} to find the flag but be careful of fake flags !
-        # wwill the flag be in other packet than raw ? dont think so but gonna test it
