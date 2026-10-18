@@ -138,25 +138,29 @@ class Capture:
         """
         logger.info("Detect ARP spoofing")
         pkts = self.packets
-        ip_mac_mapping = {}
+        compteur = {}  # { (ip : {mac:compteur}}
         for pkt in pkts:
             if not (pkt.haslayer(ARP) and pkt[ARP].op == 2):
                 continue
-
             ip = pkt[ARP].psrc
             mac = pkt[ARP].hwsrc
-            if not (ip in ip_mac_mapping and ip_mac_mapping[ip] != mac):
-                ip_mac_mapping[ip] = mac
-                continue
+            compteur.setdefault(ip, {})
+            compteur[ip][mac] = compteur[ip].get(mac, 0) + 1
 
-            if (ip, mac) not in [(a.src_ip, a.src_mac) for a in self.alerts]:
+        for ip, macs in compteur.items():
+            if len(macs) == 1:
+                continue
+            _, authentic_mac = max((nb, mac) for mac, nb in macs.items())
+            for mac in macs:
+                if mac == authentic_mac:
+                    continue
                 self.alerts.append(
                     Alert(
                         attack_type=AttackType.ARP_SPOOFING,
                         protocol="ARP",
                         src_ip=ip,
                         src_mac=mac,
-                        details=f"IP {pkt[ARP].psrc} is being spoofed by MAC {mac}",
+                        details=f"IP {ip} is being spoofed by MAC {mac}",
                     )
                 )
 
