@@ -51,7 +51,7 @@ def test_parse_args_with_pcap_and_iface_then_exit():
 
 def test_when_choose_interface_then_return_empty_string(monkeypatch):  # if no interface found, return ""
     # Given
-    monkeypatch.setattr("src.tp1.utils.lib.get_if_list", lambda: [])  # fake no interface found
+    monkeypatch.setattr("src.tp1.utils.lib.get_if_list", list)  # fake no interface found
 
     # When
     result = choose_interface()
