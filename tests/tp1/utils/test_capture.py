@@ -316,6 +316,21 @@ def test_gen_summary_with_alerts():
     )
 
 
+def test_analyse_then_fill_alerts_summary_and_flag():
+    # Given
+    capture = Capture()
+    capture.packets = [arp_normal1, arp_normal1, sameIPDiffMac, raw_flag_packet]
+
+    # When
+    capture.analyse("tcp")
+
+    # Then
+    attack_types = [alert.attack_type for alert in capture.alerts]
+    assert attack_types == [AttackType.ARP_SPOOFING, AttackType.SQL_INJECTION]
+    assert capture.summary.startswith("2 alert(s) detected :")
+    assert capture.flag == "ESGI{tp1_47e333cd2508}"
+
+
 @pytest.mark.parametrize(
     "packets, theoricalFlag",
     [
