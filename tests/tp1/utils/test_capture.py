@@ -121,7 +121,7 @@ def test_get_all_protocols():
     [
         ([arp_normal1, arp_normal2], []),  # should return 0 alerts
         (
-            [arp_normal1, sameIPDiffMac],
+            [arp_normal1, arp_normal1, sameIPDiffMac],
             [
                 Alert(
                     attack_type=AttackType.ARP_SPOOFING,
@@ -133,7 +133,7 @@ def test_get_all_protocols():
             ],
         ),  # should return 1 alert
         (
-            [arp_normal1, arp_normal2, sameIPDiffMac, sameIPDiffMac],
+            [arp_normal1, arp_normal1, arp_normal1, arp_normal2, sameIPDiffMac, sameIPDiffMac],
             [
                 Alert(
                     attack_type=AttackType.ARP_SPOOFING,
@@ -145,7 +145,17 @@ def test_get_all_protocols():
             ],
         ),  # should return 1 alert ( test is same alert is not reported twice)
         (
-            [arp_normal1, arp_normal2, arp_normal3, sameIPDiffMac, sameIPDiffMac, diffIPDiffMac],
+            [
+                arp_normal1,
+                arp_normal1,
+                arp_normal1,
+                arp_normal2,
+                arp_normal3,
+                arp_normal3,
+                sameIPDiffMac,
+                sameIPDiffMac,
+                diffIPDiffMac,
+            ],
             [
                 Alert(
                     attack_type=AttackType.ARP_SPOOFING,
@@ -163,8 +173,20 @@ def test_get_all_protocols():
                 ),
             ],
         ),  # should return 2 alerts
+        (
+            [sameIPDiffMac, arp_normal1, arp_normal1],
+            [
+                Alert(
+                    attack_type=AttackType.ARP_SPOOFING,
+                    protocol="ARP",
+                    src_ip=CLIENT_IP,
+                    src_mac=SCANNER_MAC,
+                    details=f"IP {CLIENT_IP} is being spoofed by MAC {SCANNER_MAC}",
+                )
+            ],
+        ),  # should return 1 alert even if the attacker answers first
     ],
-    ids=["arp_normal", "arp_alert1", "arp_alert2", "arp_alert3"],
+    ids=["arp_normal", "arp_alert1", "arp_alert2", "arp_alert3", "arp_attacker_first"],
 )
 def test_detect_arp_spoofing(packets, theoricalAlerts):
     # Given
