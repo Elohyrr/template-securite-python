@@ -9,7 +9,5 @@ __pycache__/
 report.pdf
 app.log
 .env
-graph.png
 graph.svg
-report.json
 test.pdf
