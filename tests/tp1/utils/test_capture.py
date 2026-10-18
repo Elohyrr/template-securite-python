@@ -18,6 +18,31 @@ arp_normal3 = Ether() / ARP(op=2, psrc="192.168.1.1", hwsrc="aa:11:22:33:44:55")
 sameIPDiffMac = Ether() / ARP(op=2, psrc=CLIENT_IP, hwsrc=SCANNER_MAC)
 diffIPDiffMac = Ether() / ARP(op=2, psrc="192.168.1.1", hwsrc=SCANNER_MAC)
 
+# packets for test arp spoofing where the attacker sends more replies than the real owner
+GATEWAY_IP = "192.168.1.1"
+GATEWAY_MAC = "02:77:25:f3:2f:6e"
+
+
+def _arp_request(victim_ip: str, t: float) -> Ether:
+    pkt = Ether(src="02:00:00:00:00:10", dst=GATEWAY_MAC) / ARP(op=1, psrc=victim_ip, pdst=GATEWAY_IP)
+    pkt.time = t
+    return pkt
+
+
+def _arp_reply(hwsrc: str, victim_ip: str, t: float) -> Ether:
+    pkt = Ether(src=hwsrc, dst="02:00:00:00:00:10") / ARP(op=2, psrc=GATEWAY_IP, hwsrc=hwsrc, pdst=victim_ip)
+    pkt.time = t
+    return pkt
+
+
+arp_flood_scenario = [
+    _arp_request("192.168.1.10", 1.0),
+    _arp_reply(GATEWAY_MAC, "192.168.1.10", 1.1),
+    *[_arp_reply(SCANNER_MAC, "192.168.1.10", 2.0 + i) for i in range(5)],
+]
+# same scenario but the capture file is not in chronological order
+arp_flood_scenario_shuffled = list(reversed(arp_flood_scenario))
+
 # packets for test port scan
 
 tcp_normal1 = Ether() / IP(src=CLIENT_IP, dst=TARGET_IP) / TCP(sport=4525, dport=80, flags="S")
@@ -185,8 +210,40 @@ def test_get_all_protocols():
                 )
             ],
         ),  # should return 1 alert even if the attacker answers first
+        (
+            arp_flood_scenario,
+            [
+                Alert(
+                    attack_type=AttackType.ARP_SPOOFING,
+                    protocol="ARP",
+                    src_ip=GATEWAY_IP,
+                    src_mac=SCANNER_MAC,
+                    details=f"IP {GATEWAY_IP} is being spoofed by MAC {SCANNER_MAC}",
+                )
+            ],
+        ),  # attacker sends more replies than the real owner, which answered the request
+        (
+            arp_flood_scenario_shuffled,
+            [
+                Alert(
+                    attack_type=AttackType.ARP_SPOOFING,
+                    protocol="ARP",
+                    src_ip=GATEWAY_IP,
+                    src_mac=SCANNER_MAC,
+                    details=f"IP {GATEWAY_IP} is being spoofed by MAC {SCANNER_MAC}",
+                )
+            ],
+        ),  # same result when packets are not in chronological order
     ],
-    ids=["arp_normal", "arp_alert1", "arp_alert2", "arp_alert3", "arp_attacker_first"],
+    ids=[
+        "arp_normal",
+        "arp_alert1",
+        "arp_alert2",
+        "arp_alert3",
+        "arp_attacker_first",
+        "arp_attacker_flood",
+        "arp_attacker_flood_unordered",
+    ],
 )
 def test_detect_arp_spoofing(packets, theoricalAlerts):
     # Given
