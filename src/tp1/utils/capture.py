@@ -8,6 +8,7 @@ from tp1.utils.config import logger
 from tp1.utils.lib import choose_interface
 
 THRESHOLD = 10
+BROADCAST_MAC = "ff:ff:ff:ff:ff:ff"
 SQL_PATTERN = ["or 1=1", "union select", " or 1=1"]
 HTTP_PATTERN = ("GET", "POST", "PUT", "HEAD", "DELETE", "HTTP/")
 
@@ -96,10 +97,6 @@ class Capture:
         attaquante.
         Sinon afficher que tout va bien
         """
-        # all_protocols = self.get_all_protocols()
-        # sort = self.sort_network_protocols()
-        # logger.debug(f"All protocols: {all_protocols}")
-        # logger.debug(f"Sorted protocols: {sort}")
 
         logger.info(f"Captured {len(self.packets)} packets")
 
@@ -138,20 +135,39 @@ class Capture:
         Detect ARP spoofing
         """
         logger.info("Detect ARP spoofing")
-        pkts = self.packets
-        compteur = {}  # { (ip : {mac:compteur}}
-        for pkt in pkts:
-            if not (pkt.haslayer(ARP) and pkt[ARP].op == 2):
-                continue
-            ip = pkt[ARP].psrc
-            mac = pkt[ARP].hwsrc
-            compteur.setdefault(ip, {})
-            compteur[ip][mac] = compteur[ip].get(mac, 0) + 1
+        arp_pkts = sorted(
+            (pkt for pkt in self.packets if pkt.haslayer(ARP)),
+            key=lambda pkt: float(pkt.time),
+        )
 
-        for ip, macs in compteur.items():
+        pending = set()  # {(requester ip, asked ip)}
+        trusted = {}  # {ip: {mac: votes}}
+        claims = {}  # {ip: {mac: nb replies}}
+        for pkt in arp_pkts:
+            arp = pkt[ARP]
+
+            if arp.op == 1:
+                pending.add((arp.psrc, arp.pdst))
+                dst_mac = pkt[Ether].dst if pkt.haslayer(Ether) else BROADCAST_MAC
+
+                if dst_mac.lower() != BROADCAST_MAC:
+                    votes = trusted.setdefault(arp.pdst, {})
+                    votes[dst_mac] = votes.get(dst_mac, 0) + 1
+
+            elif arp.op == 2:
+                replies = claims.setdefault(arp.psrc, {})
+                replies[arp.hwsrc] = replies.get(arp.hwsrc, 0) + 1
+
+                if (arp.pdst, arp.psrc) in pending:
+                    pending.discard((arp.pdst, arp.psrc))
+                    votes = trusted.setdefault(arp.psrc, {})
+                    votes[arp.hwsrc] = votes.get(arp.hwsrc, 0) + 1
+
+        for ip, macs in claims.items():
             if len(macs) == 1:
                 continue
-            _, authentic_mac = max((nb, mac) for mac, nb in macs.items())
+
+            authentic_mac = max(trusted.get(ip) or macs, key=(trusted.get(ip) or macs).get)
             for mac in macs:
                 if mac == authentic_mac:
                     continue
@@ -226,7 +242,6 @@ class Capture:
         pkts = self.packets
 
         for pkt in pkts:
-            # if pkt.haslayer(TCP) and pkt[TCP].payload and b"GET /login" in bytes(pkt[TCP].payload):
             if pkt.haslayer(TCP) and pkt[TCP].payload:
                 if not pkt.haslayer(Raw):
                     continue
