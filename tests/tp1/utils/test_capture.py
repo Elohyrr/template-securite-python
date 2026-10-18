@@ -101,7 +101,7 @@ def test_sort_network_protocols():
     result = capture.sort_network_protocols()
 
     # Then
-    assert list(result.items()) == [("Ether", 3), ("ARP", 2), ("IP", 1), ("TCP", 1)]
+    assert list(result.items()) == [("Ethernet", 3), ("ARP", 2), ("IP", 1), ("TCP", 1)]
 
 
 def test_get_all_protocols():
@@ -113,7 +113,7 @@ def test_get_all_protocols():
     result = capture.get_all_protocols()
 
     # Then
-    assert result == {"Ether": 3, "IP": 1, "TCP": 1, "ARP": 2}
+    assert result == {"Ethernet": 3, "IP": 1, "TCP": 1, "ARP": 2}
 
 
 @pytest.mark.parametrize(
