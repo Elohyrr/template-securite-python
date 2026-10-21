@@ -9,3 +9,6 @@ __pycache__/
 report.pdf
 app.log
 .env
+graph.svg
+test.pdf
+projet.zip
